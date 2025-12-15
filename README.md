@@ -23,3 +23,11 @@ Dial by your location
 309 205 3325 US
 646 558 8656 US (New York)
 
+
+
+
+
+•	https://us06web.zoom.us/j/82999212879
+•	Meeting ID: 829 9921 2879
+•	Password: Pa$$w0rd       ( that's a zero ) 
+
