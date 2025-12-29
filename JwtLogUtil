@@ -1,0 +1,39 @@
+package com.security.jwt;
+
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import org.slf4j.Logger;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
+
+public final class JwtLogUtil {
+
+    private JwtLogUtil() {}
+
+    public static void logTokenSafely(String token, Logger log) {
+
+        try {
+            JWT jwt = JWTParser.parse(token);
+
+            // Log header (safe)
+            log.debug("JWT header: {}", jwt.getHeader().toJSONObject());
+
+            // Log claims (safe AFTER truncation rules)
+            log.debug("JWT claims: {}", jwt.getJWTClaimsSet().toJSONObject());
+
+            // Log a short fingerprint for correlation
+            log.debug("JWT fingerprint: {}", fingerprint(token));
+
+        } catch (Exception e) {
+            log.debug("Failed to parse JWT for logging: {}", e.getMessage());
+        }
+    }
+
+    private static String fingerprint(String token) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(hash).substring(0, 12);
+    }
+}
