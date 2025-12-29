@@ -1,0 +1,147 @@
+package com.security.jwt;
+
+import com.nimbusds.jwt.*;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.proc.*;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class JwtAuthFilter implements Filter {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(JwtAuthFilter.class);
+
+    private ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
+
+    private static final String ISSUER = "https://oauth.mycompany.com";
+    private static final String AUDIENCE = "AWTCBSV";
+    private static final String REQUIRED_SCOPE = "/HelloService";
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        try {
+            log.info("Initializing JWT authentication filter");
+
+            URL jwksUrl = new URL("https://oauth.mycompany.com/oauth2/keys");
+
+            JWKSource<SecurityContext> keySource =
+                    new RemoteJWKSet<>(jwksUrl);
+
+            jwtProcessor = new DefaultJWTProcessor<>();
+
+            JWSKeySelector<SecurityContext> keySelector =
+                    new JWSVerificationKeySelector<>(
+                            JWSAlgorithm.RS256, keySource);
+
+            jwtProcessor.setJWSKeySelector(keySelector);
+
+            log.info("JWT filter initialized successfully");
+
+        } catch (Exception e) {
+            log.error("JWT filter initialization failed", e);
+            throw new ServletException("JWT filter init failed", e);
+        }
+    }
+
+    @Override
+    public void doFilter(
+            ServletRequest request,
+            ServletResponse response,
+            FilterChain chain
+    ) throws IOException, ServletException {
+
+        HttpServletRequest httpReq = (HttpServletRequest) request;
+        HttpServletResponse httpRes = (HttpServletResponse) response;
+
+        String path = httpReq.getRequestURI();
+        String authHeader = httpReq.getHeader("Authorization");
+
+        if (authHeader == null) {
+            log.info("JWT missing: No Authorization header (URI={})", path);
+            httpRes.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header");
+            return;
+        }
+
+        if (!authHeader.startsWith("Bearer ")) {
+            log.info("JWT invalid format: Authorization header does not start with Bearer (URI={})", path);
+            httpRes.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Authorization header");
+            return;
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            JWTClaimsSet claims = jwtProcessor.process(token, null);
+
+            if (log.isDebugEnabled()) {
+                log.debug("JWT claims received: {}", claims.toJSONObject());
+            }
+
+            // Issuer validation
+            if (!ISSUER.equals(claims.getIssuer())) {
+                log.info(
+                        "JWT rejected: Invalid issuer [{}], expected [{}]",
+                        claims.getIssuer(), ISSUER
+                );
+                throw new SecurityException("Invalid issuer");
+            }
+
+            // Audience validation
+            if (!claims.getAudience().contains(AUDIENCE)) {
+                log.info(
+                        "JWT rejected: Audience {} does not contain required {}",
+                        claims.getAudience(), AUDIENCE
+                );
+                throw new SecurityException("Invalid audience");
+            }
+
+            // Scope validation
+            List<String> scopes = claims.getStringListClaim("scope");
+            if (scopes == null || !scopes.contains(REQUIRED_SCOPE)) {
+                log.info(
+                        "JWT rejected: Required scope [{}] not present. Token scopes={}",
+                        REQUIRED_SCOPE, scopes
+                );
+                throw new SecurityException("Missing scope");
+            }
+
+            // Success
+            log.debug(
+                    "JWT accepted: sub={}, aud={}, scopes={}",
+                    claims.getSubject(),
+                    claims.getAudience(),
+                    scopes
+            );
+
+            httpReq.setAttribute("jwtClaims", claims);
+            chain.doFilter(request, response);
+
+        } catch (BadJOSEException e) {
+            log.info("JWT rejected: Signature or claim validation failed: {}", e.getMessage());
+            log.debug("JWT failure detail", e);
+            httpRes.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+
+        } catch (JOSEException e) {
+            log.error("JWT processing error (JOSE)", e);
+            httpRes.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token processing error");
+
+        } catch (Exception e) {
+            log.info("JWT rejected: {}", e.getMessage());
+            log.debug("JWT rejection detail", e);
+            httpRes.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        }
+    }
+
+    @Override
+    public void destroy() {
+        log.info("Destroying JWT authentication filter");
+    }
+}
