@@ -77,6 +77,15 @@ public class JwtAuthFilter implements Filter {
         }
 
         String token = authHeader.substring(7);
+//////
+// 1. Log raw token SAFELY
+if (log.isDebugEnabled()) {
+    JwtLogUtil.logTokenSafely(token, log);
+}
+
+// 2. Validate signature + claims
+JWTClaimsSet claims = jwtProcessor.process(token, null);
+////////
 
         try {
             JWTClaimsSet claims = jwtProcessor.process(token, null);
