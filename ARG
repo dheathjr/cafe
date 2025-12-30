@@ -1,0 +1,32 @@
+package com.mycompany.soap.model;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "AgreementResponse")
+@XmlType(propOrder = { "result" })
+public class AgreementResponse {
+
+    @XmlElement(name = "result", required = true)
+    private String result;
+
+    public AgreementResponse() {
+        // Required by JAXB
+    }
+
+    public AgreementResponse(String result) {
+        this.result = result;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+}
