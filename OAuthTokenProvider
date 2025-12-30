@@ -1,0 +1,71 @@
+package com.mycompany.security;
+
+import javax.json.*;
+import java.io.*;
+import java.net.*;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+public class OAuthTokenProvider {
+
+    private static final Logger LOG = Logger.getLogger(OAuthTokenProvider.class.getName());
+    private static OAuthTokenResponse cachedToken;
+
+    private static Properties props = new Properties();
+
+    static {
+        try (InputStream is = OAuthTokenProvider.class
+                .getClassLoader()
+                .getResourceAsStream("oauth.properties")) {
+            props.load(is);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load oauth.properties", e);
+        }
+    }
+
+    public synchronized static String getAccessToken() throws Exception {
+
+        if (cachedToken != null && !cachedToken.isExpired()) {
+            return cachedToken.getAccess_token();
+        }
+
+        LOG.info("Requesting new OAuth2 access token");
+
+        URL url = new URL(props.getProperty("oauth.token.url"));
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+        String body =
+                "grant_type=client_credentials" +
+                "&client_id=" + URLEncoder.encode(props.getProperty("oauth.client.id"), "UTF-8") +
+                "&client_secret=" + URLEncoder.encode(props.getProperty("oauth.client.secret"), "UTF-8") +
+                "&scope=" + URLEncoder.encode(props.getProperty("oauth.scope"), "UTF-8") +
+                "&audience=" + URLEncoder.encode(props.getProperty("oauth.audience"), "UTF-8");
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(body.getBytes("UTF-8"));
+        }
+
+        int status = conn.getResponseCode();
+        if (status != 200) {
+            throw new RuntimeException("Token request failed HTTP " + status);
+        }
+
+        try (JsonReader reader = Json.createReader(conn.getInputStream())) {
+            JsonObject json = reader.readObject();
+
+            OAuthTokenResponse token = new OAuthTokenResponse();
+            token.setAccess_token(json.getString("access_token"));
+            token.setExpires_in(json.getJsonNumber("expires_in").longValue());
+            token.setIssuedAt(System.currentTimeMillis());
+
+            cachedToken = token;
+
+            LOG.info("OAuth token acquired, expires in " + token.getExpires_in() + " seconds");
+            return token.getAccess_token();
+        }
+    }
+}
