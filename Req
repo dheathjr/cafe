@@ -1,0 +1,15 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:ws="http://agreement.mycompany.com/ws">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ws:getAgreement>
+         <input>12345</input>
+      </ws:getAgreement>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+
+curl -X POST \
+  http://localhost:8080/agreement-service/ws/AgreementService \
+  -H "Content-Type: text/xml; charset=utf-8" \
+  -d @request.xml
