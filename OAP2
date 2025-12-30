@@ -1,0 +1,151 @@
+package com.mycompany.security;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Base64;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+public class OAuthTokenProvider {
+
+    private static final Logger LOG =
+            Logger.getLogger(OAuthTokenProvider.class.getName());
+
+    private static OAuthTokenResponse cachedToken;
+    private static final Properties props = new Properties();
+
+    static {
+        try (InputStream is = OAuthTokenProvider.class
+                .getClassLoader()
+                .getResourceAsStream("oauth.properties")) {
+
+            if (is == null) {
+                throw new RuntimeException("oauth.properties not found on classpath");
+            }
+            props.load(is);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load oauth.properties", e);
+        }
+    }
+
+    /**
+     * Entry point used by REST client / SOAP service
+     */
+    public synchronized static String getAccessToken() throws Exception {
+
+        // ===============================
+        // Reuse cached token if valid
+        // ===============================
+        if (cachedToken != null && !cachedToken.isExpired()) {
+            LOG.fine("Reusing cached OAuth token");
+            LOG.fine("Token (masked): " +
+                    maskToken(cachedToken.getAccess_token()));
+            return cachedToken.getAccess_token();
+        }
+
+        LOG.info("Requesting new OAuth2 access token");
+
+        // ===============================
+        // Build token request
+        // ===============================
+        URL url = new URL(props.getProperty("oauth.token.url"));
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty(
+                "Content-Type", "application/x-www-form-urlencoded");
+
+        String body =
+                "grant_type=client_credentials" +
+                "&client_id=" + URLEncoder.encode(
+                        props.getProperty("oauth.client.id"), "UTF-8") +
+                "&client_secret=" + URLEncoder.encode(
+                        props.getProperty("oauth.client.secret"), "UTF-8") +
+                "&scope=" + URLEncoder.encode(
+                        props.getProperty("oauth.scope"), "UTF-8") +
+                "&audience=" + URLEncoder.encode(
+                        props.getProperty("oauth.audience"), "UTF-8");
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(body.getBytes("UTF-8"));
+        }
+
+        int status = conn.getResponseCode();
+        if (status != 200) {
+            LOG.severe("OAuth token request failed, HTTP " + status);
+            throw new RuntimeException(
+                    "OAuth token request failed with HTTP " + status);
+        }
+
+        // ===============================
+        // Parse token response
+        // ===============================
+        try (JsonReader reader =
+                     Json.createReader(conn.getInputStream())) {
+
+            JsonObject json = reader.readObject();
+
+            OAuthTokenResponse token = new OAuthTokenResponse();
+            token.setAccess_token(json.getString("access_token"));
+            token.setExpires_in(
+                    json.getJsonNumber("expires_in").longValue());
+            token.setIssuedAt(System.currentTimeMillis());
+
+            cachedToken = token;
+
+            // ===============================
+            // SAFE LOGGING
+            // ===============================
+            LOG.info("OAuth token successfully acquired");
+            LOG.fine("Token (masked): " +
+                    maskToken(token.getAccess_token()));
+            LOG.fine("Token expires in: " +
+                    token.getExpires_in() + " seconds");
+
+            logJwtClaims(token.getAccess_token());
+
+            return token.getAccess_token();
+        }
+    }
+
+    /**
+     * Masks JWT for safe logging
+     */
+    private static String maskToken(String token) {
+        if (token == null || token.length() < 20) {
+            return "<invalid-token>";
+        }
+        return token.substring(0, 10) + "...";
+    }
+
+    /**
+     * Logs decoded JWT payload (claims only, no signature)
+     */
+    private static void logJwtClaims(String jwt) {
+        try {
+            String[] parts = jwt.split("\\.");
+            if (parts.length < 2) {
+                LOG.warning("Invalid JWT format");
+                return;
+            }
+
+            String payload = new String(
+                    Base64.getUrlDecoder().decode(parts[1]),
+                    "UTF-8"
+            );
+
+            LOG.fine("JWT payload: " + payload);
+
+        } catch (Exception e) {
+            LOG.warning("Failed to decode JWT payload: " + e.getMessage());
+        }
+    }
+}
