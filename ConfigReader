@@ -1,0 +1,33 @@
+import java.io.InputStream;
+import java.util.Properties;
+
+public class ConfigReader {
+
+    public static void main(String[] args) {
+
+        Properties props = new Properties();
+
+        try (InputStream input =
+                ConfigReader.class
+                    .getClassLoader()
+                    .getResourceAsStream("config.properties")) {
+
+            if (input == null) {
+                throw new RuntimeException("config.properties not found");
+            }
+
+            props.load(input);
+
+            String apiUrl = props.getProperty("api.url");
+            int timeout = Integer.parseInt(props.getProperty("api.timeout"));
+            boolean enabled = Boolean.parseBoolean(props.getProperty("api.enabled"));
+
+            System.out.println("API URL: " + apiUrl);
+            System.out.println("Timeout: " + timeout);
+            System.out.println("Enabled: " + enabled);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
