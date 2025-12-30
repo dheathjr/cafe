@@ -1,0 +1,38 @@
+package com.mycompany.security;
+
+import java.net.*;
+import java.io.*;
+
+public class SecureRestClient {
+
+    public static String callApi(String consumerId, String contextId, String value) throws Exception {
+
+        String token = OAuthTokenProvider.getAccessToken();
+
+        URL url = new URL("https://api.mycompany.com/secure-endpoint");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+        conn.setRequestProperty("ConsumerID", consumerId);
+        conn.setRequestProperty("ContextID", contextId);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        String payload = "{ \"value\": \"" + value + "\" }";
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(payload.getBytes("UTF-8"));
+        }
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        }
+    }
+}
