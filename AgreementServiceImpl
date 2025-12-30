@@ -1,0 +1,21 @@
+@WebService
+public class AgreementServiceImpl {
+
+    public AgreementResponse getAgreement(String input) {
+
+        try {
+            String apiResponse = SecureRestClient.callApi(
+                    "CONSUMER123",
+                    "CTX-456",
+                    input
+            );
+
+            AgreementResponse resp = new AgreementResponse();
+            resp.setResult(apiResponse);
+            return resp;
+
+        } catch (Exception e) {
+            throw new RuntimeException("API call failed", e);
+        }
+    }
+}
