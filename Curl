@@ -1,0 +1,4 @@
+curl -X POST \
+  http://localhost:9086/oauthdemoone/AgreementService \
+  -H "Content-Type: text/xml; charset=utf-8" \
+  -d '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://agreement.heath.com/ws"><soapenv:Header/><soapenv:Body><ws:getAgreement><input>12345</input></ws:getAgreement></soapenv:Body></soapenv:Envelope>'
