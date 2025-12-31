@@ -1,0 +1,32 @@
+@WebService(
+    serviceName = "AgreementService",
+    targetNamespace = "http://agreement.heath.com/",
+    endpointInterface = "com.heath.soap.AgreementService"
+)
+public class AgreementServiceImpl implements AgreementService {
+
+    @Override
+    public AgreementResponse getAgreement(AgreementRequest request) {
+
+        try {
+            AAJwtBearerAcquirer acquirer =
+                    new AAJwtBearerAcquirer();
+
+            String bearerToken =
+                    acquirer.getJwtBearerToken();
+
+            // 🔒 DO NOT log full token
+            LOGGER.info("JWT bearer token successfully acquired");
+
+            // Use token in REST call...
+            AgreementResponse response =
+                    callBackendApi(request, bearerToken);
+
+            return response;
+
+        } catch (Exception e) {
+            LOGGER.error("JWT acquisition failed", e);
+            throw new RuntimeException("Authorization failed");
+        }
+    }
+}
