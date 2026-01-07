@@ -25,6 +25,12 @@ Dial by your location
 
 
 
+https://umbctraining.zoom.us/j/95074890641?pwd=sSXXjYIOQHo5pDNU2gEmpA4TibxA0y.1 
+Meeting ID: 950 7489 0641
+Passcode: 267801
+
+
+
 
 
 •	https://us06web.zoom.us/j/82999212879
