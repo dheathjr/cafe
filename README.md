@@ -37,3 +37,10 @@ Passcode: 267801
 •	Meeting ID: 829 9921 2879
 •	Password: Pa$$w0rd       ( that's a zero ) 
 
+
+Updated to include Zoom link (JF – 1/5/26)
+https://umbctraining.zoom.us/j/95074890641?pwd=sSXXjYIOQHo5pDNU2gEmpA4TibxA0y.1 
+Meeting ID: 950 7489 0641
+Passcode: 267801
+
+
