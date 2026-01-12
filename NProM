@@ -1,0 +1,40 @@
+package com.yourcompany.config;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+public class PropertyManager {
+
+    private static final Properties props = new Properties();
+
+    static {
+        try (InputStream is =
+                PropertyManager.class
+                        .getClassLoader()
+                        .getResourceAsStream("shakes.properties")) {
+
+            if (is == null) {
+                throw new RuntimeException("shakes.properties not found");
+            }
+            props.load(is);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load shakes.properties", e);
+        }
+    }
+
+    public static String get(String key) {
+        return props.getProperty(key);
+    }
+
+    public static String getEnvProperty(String baseKey) {
+        String env = System.getProperty("env");
+
+        if (env == null || env.isEmpty()) {
+            throw new IllegalStateException("System property 'env' is not set");
+        }
+
+        String fullKey = env + "." + baseKey;
+        return get(fullKey);
+    }
+}
