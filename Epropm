@@ -1,0 +1,14 @@
+public static String getEnvProperty(String baseKey) {
+    String env = System.getProperty("env");
+
+    System.out.println("DEBUG env = " + env);
+    System.out.println("DEBUG baseKey = " + baseKey);
+
+    String fullKey = env + "." + baseKey;
+    System.out.println("DEBUG fullKey = " + fullKey);
+
+    String value = props.getProperty(fullKey);
+    System.out.println("DEBUG value = " + value);
+
+    return value;
+}
