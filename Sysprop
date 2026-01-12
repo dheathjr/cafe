@@ -1,0 +1,13 @@
+import java.util.Properties;
+
+public class SystemPropPrinter {
+
+    public static void printSystemProperties() {
+        Properties props = System.getProperties();
+
+        for (String name : props.stringPropertyNames()) {
+            System.out.println(
+                name + " = " + props.getProperty(name));
+        }
+    }
+}
