@@ -1,0 +1,18 @@
+public final class PropertyUtil {
+
+    private PropertyUtil() {}
+
+    public static String getEnvProperty(
+            Properties props, String baseKey) {
+
+        String env = EnvironmentUtil.getEnv(props);
+        String fullKey = env + "." + baseKey;
+
+        String value = props.getProperty(fullKey);
+        if (value == null) {
+            throw new IllegalStateException(
+                "Missing property: " + fullKey);
+        }
+        return value;
+    }
+}
