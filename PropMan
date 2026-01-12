@@ -1,0 +1,43 @@
+package com.yourcompany.util;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+public final class PropertyManager {
+
+    private PropertyManager() {}
+
+    /**
+     * Loads a properties file from the classpath.
+     *
+     * Example:
+     *   Properties p = PropertyManager.load("shakes.properties");
+     */
+    public static Properties load(String fileName) {
+
+        if (fileName == null || fileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Property file name is required");
+        }
+
+        Properties props = new Properties();
+
+        try (InputStream is =
+                Thread.currentThread()
+                      .getContextClassLoader()
+                      .getResourceAsStream(fileName)) {
+
+            if (is == null) {
+                throw new IllegalStateException(
+                    "Property file not found on classpath: " + fileName);
+            }
+
+            props.load(is);
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                "Failed to load property file: " + fileName, e);
+        }
+
+        return props;
+    }
+}
