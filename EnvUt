@@ -1,0 +1,30 @@
+public final class EnvironmentUtil {
+
+    private static final String DEFAULT_ENV = "local";
+
+    private EnvironmentUtil() {}
+
+    public static String getEnv(Properties props) {
+
+        // 1) JVM argument: -Denv=dev
+        String env = System.getProperty("env");
+        if (env != null && !env.trim().isEmpty()) {
+            return env.trim();
+        }
+
+        // 2) OS environment variable
+        env = System.getenv("ENV");
+        if (env != null && !env.trim().isEmpty()) {
+            return env.trim();
+        }
+
+        // 3) Property file fallback
+        env = props.getProperty("env");
+        if (env != null && !env.trim().isEmpty()) {
+            return env.trim();
+        }
+
+        // 4) Default
+        return DEFAULT_ENV;
+    }
+}
