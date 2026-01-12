@@ -1,0 +1,35 @@
+public final class ConfigLoader {
+
+    private static final Properties props = new Properties();
+
+    static {
+        try {
+            String env = System.getProperty("env", "dev");
+            String file = "application-" + env + ".properties";
+
+            System.out.println("ENV = " + env);
+            System.out.println("Loading config: " + file);
+
+            InputStream is = ConfigLoader.class
+                .getClassLoader()
+                .getResourceAsStream(file);
+
+            if (is == null) {
+                throw new RuntimeException("Cannot find " + file + " on classpath");
+            }
+
+            props.load(is);
+
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    public static String getRequired(String key) {
+        String value = props.getProperty(key);
+        if (value == null) {
+            throw new RuntimeException("Missing required property: " + key);
+        }
+        return value;
+    }
+}
