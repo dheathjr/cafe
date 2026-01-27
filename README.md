@@ -1,3 +1,13 @@
+
+https://umbctraining.zoom.us/j/94005205039?pwd=9AkhK9wIYtLAIxjHbAQVPLL8WF4Vlp.1 
+ 
+Meeting ID: 940 0520 5039
+Passcode: 239001
+
+
+
+
+
 https://umbctraining.zoom.us/j/96718891842?pwd=XOl7QbleyhMQzZvHXPo7ibNAPct4LW.1 
  
 Meeting ID: 967 1889 1842
