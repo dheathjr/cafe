@@ -1,0 +1,34 @@
+<h2>Add Person</h2>
+
+<input [(ngModel)]="newPerson.firstName" placeholder="First Name">
+<input [(ngModel)]="newPerson.lastName" placeholder="Last Name">
+<input [(ngModel)]="newPerson.dateOfBirth" type="date">
+<input [(ngModel)]="newPerson.favoriteColor" placeholder="Favorite Color">
+<input [(ngModel)]="newPerson.cityOfBirth" placeholder="City of Birth">
+
+<button (click)="addPerson()">Add</button>
+
+<hr>
+
+<h2>Person List</h2>
+
+<table border="1">
+  <tr>
+    <th>First</th>
+    <th>Last</th>
+    <th>DOB</th>
+    <th>Color</th>
+    <th>City</th>
+    <th>Actions</th>
+  </tr>
+  <tr *ngFor="let p of persons">
+    <td>{{p.firstName}}</td>
+    <td>{{p.lastName}}</td>
+    <td>{{p.dateOfBirth}}</td>
+    <td>{{p.favoriteColor}}</td>
+    <td>{{p.cityOfBirth}}</td>
+    <td>
+      <button (click)="deletePerson(p.id)">Delete</button>
+    </td>
+  </tr>
+</table>
