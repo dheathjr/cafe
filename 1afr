@@ -1,0 +1,21 @@
+public AgreementFinanceResponse obtainAgreementFinance(AgreementFinanceRequest in) {
+
+    try {
+        return _getDescriptor().getProxy().obtainAgreementFinance(in);
+
+    } catch (javax.xml.ws.soap.SOAPFaultException e) {
+
+        System.out.println("===== SOAP FAULT DETECTED =====");
+        System.out.println("Fault Code: " + e.getFault().getFaultCode());
+        System.out.println("Fault String: " + e.getFault().getFaultString());
+
+        if (e.getFault().getDetail() != null) {
+            System.out.println("Fault Detail: " +
+                e.getFault().getDetail().getTextContent());
+        }
+
+        e.printStackTrace();
+
+        throw e; // rethrow so caller still knows it failed
+    }
+}
