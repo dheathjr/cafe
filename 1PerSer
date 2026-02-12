@@ -1,0 +1,30 @@
+package com.example.personapp.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import com.example.personapp.model.Person;
+import com.example.personapp.repository.PersonRepository;
+
+@Service
+@RequiredArgsConstructor
+public class PersonService {
+
+    private final PersonRepository repository;
+
+    public List<Person> getAll() {
+        return repository.findAll();
+    }
+
+    public Person getById(Long id) {
+        return repository.findById(id).orElseThrow();
+    }
+
+    public Person save(Person person) {
+        return repository.save(person);
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+}
