@@ -1,0 +1,48 @@
+import { Component, OnInit } from '@angular/core';
+import { PersonService } from '../person.service';
+import { Person } from '../person';
+
+@Component({
+  selector: 'app-person-list',
+  templateUrl: './person-list.component.html'
+})
+export class PersonListComponent implements OnInit {
+
+  persons: Person[] = [];
+  newPerson: Person = {
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    favoriteColor: '',
+    cityOfBirth: ''
+  };
+
+  constructor(private service: PersonService) {}
+
+  ngOnInit(): void {
+    this.loadPersons();
+  }
+
+  loadPersons() {
+    this.service.getAll().subscribe(data => this.persons = data);
+  }
+
+  addPerson() {
+    this.service.create(this.newPerson).subscribe(() => {
+      this.loadPersons();
+      this.newPerson = {
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '',
+        favoriteColor: '',
+        cityOfBirth: ''
+      };
+    });
+  }
+
+  deletePerson(id?: number) {
+    if (id) {
+      this.service.delete(id).subscribe(() => this.loadPersons());
+    }
+  }
+}
