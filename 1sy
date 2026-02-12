@@ -1,0 +1,4 @@
+System.setProperty(
+    "com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
+    "true"
+);
