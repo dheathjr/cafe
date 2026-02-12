@@ -1,3 +1,11 @@
+Zoom Info:
+https://umbctraining.zoom.us/j/99842132968?pwd=E6znwdQjnOi1kQ6uOjhIDlA48xt5vj.1
+Meeting ID: 998 4213 2968
+Passcode: 064437
+
+
+
+
 
 https://umbctraining.zoom.us/j/94005205039?pwd=9AkhK9wIYtLAIxjHbAQVPLL8WF4Vlp.1 
  
