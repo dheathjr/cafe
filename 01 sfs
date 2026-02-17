@@ -1,0 +1,24 @@
+package com.example.soap;
+
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.handler.Handler;
+import java.util.ArrayList;
+import java.util.List;
+
+public class SoapFaultServer {
+
+    public static void main(String[] args) {
+
+        FaultServiceImpl implementor = new FaultServiceImpl();
+        Endpoint endpoint = Endpoint.create(implementor);
+
+        List<Handler> handlerChain = new ArrayList<>();
+        handlerChain.add(new SoapLoggingHandler());
+        endpoint.getBinding().setHandlerChain(handlerChain);
+
+        endpoint.publish("http://localhost:8080/faultService");
+
+        System.out.println("SOAP Service running at:");
+        System.out.println("http://localhost:8080/faultService?wsdl");
+    }
+}
