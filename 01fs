@@ -1,0 +1,12 @@
+package com.example.soap;
+
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+
+@WebService
+public interface FaultService {
+
+    @WebMethod
+    String process(String input);
+
+}
