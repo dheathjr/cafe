@@ -1,0 +1,52 @@
+package com.example.soap;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.ByteArrayOutputStream;
+import java.util.Set;
+
+public class SoapLoggingHandler implements SOAPHandler<SOAPMessageContext> {
+
+    public static ThreadLocal<String> LAST_REQUEST = new ThreadLocal<>();
+
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+
+        Boolean outbound = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (!outbound) { // inbound request
+            try {
+                SOAPMessage message = context.getMessage();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                message.writeTo(out);
+                String soapXml = new String(out.toByteArray(), "UTF-8");
+
+                LAST_REQUEST.set(soapXml);
+
+                System.out.println("=== FULL SOAP REQUEST ===");
+                System.out.println(soapXml);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {}
+
+    @Override
+    public Set<QName> getHeaders() {
+        return null;
+    }
+}
