@@ -1,0 +1,44 @@
+package com.example.soap;
+
+import javax.jws.WebService;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.ws.soap.SOAPFaultException;
+
+import com.ibm.websphere.ras.Tr;
+import com.ibm.websphere.ras.TraceComponent;
+
+@WebService(endpointInterface = "com.example.soap.FaultService")
+public class FaultServiceImpl implements FaultService {
+
+    private static final TraceComponent tc =
+            Tr.register(FaultServiceImpl.class);
+
+    @Override
+    public String process(String input) {
+
+        try {
+
+            String fullSoap = SoapLoggingHandler.LAST_REQUEST.get();
+
+            if (tc.isErrorEnabled()) {
+                Tr.error(tc, "SOAP Request Received: " + fullSoap);
+            }
+
+            SOAPFault fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultString("Processing failed on server");
+
+            throw new SOAPFaultException(fault);
+
+        } catch (SOAPFaultException sfe) {
+
+            Tr.error(tc, "SOAPFaultException occurred", sfe);
+            throw sfe;
+
+        } catch (Exception e) {
+
+            Tr.error(tc, "Unexpected error", e);
+            throw new RuntimeException(e);
+        }
+    }
+}
