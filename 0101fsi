@@ -1,0 +1,44 @@
+package com.example.soap;
+
+import javax.jws.WebService;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.ws.soap.SOAPFaultException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+@WebService(endpointInterface = "com.example.soap.FaultService")
+public class FaultServiceImpl implements FaultService {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(FaultServiceImpl.class.getName());
+
+    @Override
+    public String process(String input) {
+
+        try {
+
+            String fullSoap = SoapLoggingHandler.LAST_REQUEST.get();
+
+            LOGGER.severe("SOAP Request Received:\n" + fullSoap);
+
+            // Simulate failure
+            SOAPFault fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultString("Processing failed on server");
+
+            LOGGER.severe("Throwing SOAPFaultException back to client");
+
+            throw new SOAPFaultException(fault);
+
+        } catch (SOAPFaultException sfe) {
+
+            LOGGER.log(Level.SEVERE, "SOAPFaultException occurred", sfe);
+            throw sfe;
+
+        } catch (Exception e) {
+
+            LOGGER.log(Level.SEVERE, "Unexpected server error", e);
+            throw new RuntimeException(e);
+        }
+    }
+}
