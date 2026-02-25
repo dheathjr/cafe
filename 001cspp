@@ -1,0 +1,21 @@
+public AgreementStatus getAgreementFinanceStatus(...) {
+
+    CPVWSOAPPortProxy proxy = new CPVWSOAPPortProxy();
+
+    // 🔍 Runtime inspection
+    System.out.println("Proxy Class: " + proxy.getClass());
+
+    if (proxy.getClass().getProtectionDomain().getCodeSource() != null) {
+        System.out.println("Loaded From: " +
+            proxy.getClass()
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation());
+    } else {
+        System.out.println("CodeSource is NULL (WebSphere classloader)");
+        System.out.println("ClassLoader: " +
+            proxy.getClass().getClassLoader());
+    }
+
+    return proxy.obtainAgreementFinance(...);
+}
