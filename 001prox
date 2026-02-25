@@ -1,0 +1,11 @@
+CPVWSOAPPortProxy proxy = new CPVWSOAPPortProxy();
+
+// 🔍 ADD HERE
+System.out.println("Proxy Class: " + proxy.getClass());
+System.out.println("Loaded From: " +
+    proxy.getClass()
+        .getProtectionDomain()
+        .getCodeSource()
+        .getLocation());
+
+proxy.obtainAgreementFinance(...);
