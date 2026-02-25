@@ -1,0 +1,17 @@
+catch (SOAPFaultException e) {
+
+    SOAPFault fault = e.getFault();
+
+    System.out.println("Fault Code: " + fault.getFaultCode());
+    System.out.println("Fault String: " + fault.getFaultString());
+
+    Detail detail = fault.getDetail();
+    if (detail != null) {
+        Iterator<?> it = detail.getDetailEntries();
+        while (it.hasNext()) {
+            DetailEntry entry = (DetailEntry) it.next();
+            System.out.println("Detail Entry: " + entry.getNodeName());
+            System.out.println("Detail Content: " + entry.getTextContent());
+        }
+    }
+}
