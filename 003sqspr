@@ -1,0 +1,19 @@
+package com.example.sqs.service;
+
+import com.example.sqs.model.OrderMessage;
+import io.awspring.cloud.sqs.operations.SqsTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SqsProducer {
+
+    private final SqsTemplate sqsTemplate;
+
+    public SqsProducer(SqsTemplate sqsTemplate) {
+        this.sqsTemplate = sqsTemplate;
+    }
+
+    public void send(OrderMessage message) {
+        sqsTemplate.send("order-queue", message);
+    }
+}
