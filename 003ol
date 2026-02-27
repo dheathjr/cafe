@@ -1,0 +1,19 @@
+package com.example.sqs.listener;
+
+import com.example.sqs.model.OrderMessage;
+import io.awspring.cloud.sqs.annotation.SqsListener;
+import org.springframework.stereotype.Service;
+
+@Service
+public class OrderListener {
+
+    @SqsListener("${sqs.queue.name}")
+    public void receiveMessage(OrderMessage message) {
+
+        System.out.println("=================================");
+        System.out.println("MESSAGE RECEIVED FROM SQS");
+        System.out.println("Order ID: " + message.getOrderId());
+        System.out.println("Customer: " + message.getCustomerName());
+        System.out.println("=================================");
+    }
+}
