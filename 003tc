@@ -1,0 +1,22 @@
+package com.example.sqs.controller;
+
+import com.example.sqs.model.OrderMessage;
+import com.example.sqs.service.SqsProducer;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/test")
+public class TestController {
+
+    private final SqsProducer producer;
+
+    public TestController(SqsProducer producer) {
+        this.producer = producer;
+    }
+
+    @PostMapping
+    public String sendMessage(@RequestBody OrderMessage message) {
+        producer.send(message);
+        return "Message sent to SQS!";
+    }
+}
